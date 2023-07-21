@@ -1,0 +1,83 @@
+	if Child.Name == "ChestReward" then
+		local plr = string.split(Child.Value,",")[1]
+		local char = workspace.Live[plr]
+
+		local chest = workspace.Chests:FindFirstChild(string.split(Child.Value,",")[2])
+		local chestassets = ReplicatedStorage.Assets.ChestVfx
+
+		local orb = chestassets["White Orb"]:Clone()
+		local aura = chestassets["Short Aura"]
+		local lvl = aura["Level Up"]:Clone()
+		local deb = aura["Debris"]:Clone()
+
+		local ChestOrb = sounds.ChestOrb:Clone()
+		local ChestShoot = sounds.ChestShoot:Clone()
+		local ChestHit = sounds.ChestHit:Clone()
+		local ChestRepulse = sounds.ChestRepulse:Clone()
+		local ChestShimmer = sounds.ChestShimmer:Clone()
+		ChestShimmer.Parent = chest.Bottom
+		ChestShimmer:Play()
+
+		chest.White.PointLight.Enabled = true
+
+		orb.Parent = workspace.Effects
+		orb.Position = chest.Bottom.Position
+		ChestOrb.Parent = orb
+		ChestOrb:Play()
+		TweenService:Create(orb, TweenInfo.new(1.6, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {Position = orb.Position + Vector3.new(0,4,0)}):Play()
+		wait(3)
+		orb.Anchored = false
+		local alignposition = Instance.new("AlignPosition")
+		alignposition.Parent = orb
+		alignposition.Attachment0 = orb.Attachment
+		alignposition.Attachment1 = char.HumanoidRootPart.RootAttachment
+		alignposition.Responsiveness = 20
+		ChestShoot.Parent = orb
+		ChestShoot:Play()
+		while task.wait() do 
+			if (orb.Position - char.HumanoidRootPart.Position).Magnitude < 1 then 
+				orb:Destroy()
+
+				ChestHit.Parent = char.HumanoidRootPart
+				ChestHit:Play()
+				Debris:AddItem(ChestHit,2)
+
+				lvl.Parent = char.HumanoidRootPart
+				lvl.Root.Part0 = char.HumanoidRootPart
+				lvl.Root.C0 = CFrame.new(0, -3.40000153, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+
+				ChestRepulse.Parent = char.HumanoidRootPart
+				ChestRepulse:Play()
+				Debris:AddItem(ChestRepulse,1)
+
+				for _,v in pairs(lvl:GetDescendants()) do
+					if v:IsA("ParticleEmitter") then
+						v:Emit(10)
+					end
+				end
+
+				Debris:AddItem(lvl,1)
+
+				deb.Parent = char.HumanoidRootPart
+				deb.Root.Part0 = char.HumanoidRootPart
+				deb.Root.C0 = CFrame.new(0, -3.40000153, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1)
+
+				for _,v in pairs(deb:GetDescendants()) do
+					if v:IsA("ParticleEmitter") then
+						v:Emit(10)
+					end
+				end
+
+				Debris:AddItem(deb,1)
+
+
+
+
+
+				break 
+			end
+		end
+
+
+
+	end
