@@ -1,0 +1,39 @@
+local module = {}
+
+
+module.Dropitem =  function(chesttype)
+	local rankdrops = require(script.Parent.Chests[chesttype])
+	if chesttype then
+		local rng = math.random(1,1000)
+		if rng  <= 500 then
+			return rankdrops.common[math.random(1,#rankdrops.common)]
+		elseif rng > 500 and rng <= 780 then
+			return rankdrops.uncommon[math.random(1,#rankdrops.uncommon)]
+		elseif rng > 780 and rng <=935 then
+			return rankdrops.rare[math.random(1,#rankdrops.rare)]
+		elseif rng > 935 and rng <= 965 then
+			return rankdrops.legendary[math.random(1,#rankdrops.legendary)]
+		elseif rng > 965 and rng <= 985 then
+			return rankdrops.mythical[math.random(1,#rankdrops.mythical)]
+		elseif rng > 985 and rng <= 995 then
+			return rankdrops.insane[math.random(1,#rankdrops.insane)]
+		elseif rng > 995 and rng <= 1000 then
+			return rankdrops.insane[math.random(1,#rankdrops.ultra)]
+		end
+		
+	
+	end
+end
+
+
+
+
+
+
+
+
+
+
+
+
+return module
