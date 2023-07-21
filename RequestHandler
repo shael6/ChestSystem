@@ -1,0 +1,72 @@
+--//Chests
+Remotes.OpenChest.OnServerEvent:Connect(function(plr, chosenItem)
+	local chestmod = require(Modules.Shared.Chest)
+	local itemmod = require(Modules.Shared.Items)
+	local chest = workspace.Chests:FindFirstChild(chosenItem)
+	local questdata = require(ReplicatedStorage.Modules.Shared.QuestsModule)
+	local questcd = plr.Data.QuestCooldowns:GetChildren()
+
+	if collectionservice:HasTag(chest, "Taken") then
+		return
+	end
+
+	local verified = false
+	if chest.Name == tostring(plr.UserId) then
+		verified = true
+	end
+	if verified == false then
+		return
+	end
+	collectionservice:AddTag(chest, "Taken")
+
+	local ChestType = function()
+		local quest = script.QuestPlaceholder
+		for i = 1,#questcd do
+			if os.time() - questcd[i].Value < quest.Value then
+				quest = questcd[i]
+			end
+		end
+		return quest.Name
+	end
+	local quest = ChestType()
+	local rank = chest.Bottom.RankGui.Rank.Text:split("-")[1]
+
+	local chestopen = Assets.Sounds.ChestOpen:Clone()
+	local chestanim = chest.AnimationController:LoadAnimation(ReplicatedStorage.Assets.Animations.ChestOpen)
+	chestanim:Play()
+	chestopen.Parent = chest.Bottom
+	chestopen:Play()
+	debris:AddItem(chestopen,1.5)
+	chestanim:GetMarkerReachedSignal("end"):Connect(function()
+
+		chestanim:AdjustSpeed(0)
+		local rewardindicator = Instance.new("StringValue")
+		rewardindicator.Parent = workspace.Visuals
+		rewardindicator.Name = "ChestReward"
+		rewardindicator.Value = plr.Name..","..chest.Name
+		debris:AddItem(rewardindicator,5)
+	end)
+
+	debris:AddItem(chest,12)
+
+	task.wait(4.5)
+	chest.Parent = workspace.ChestGraveyard
+	local drop = chestmod.Dropitem(rank)
+	local itemdrop = itemmod[drop]
+	Remotes.NotifyLarge:FireClient(plr, {
+		["Text"] = "<font color='rgb(255, 174, 33)'>[ CHEST OPENED ]</font>",
+		["Description"] = "Reward Received is: ".. itemdrop.Name .."!",
+		Duration = 3,
+	})	
+
+	local givenitem = plr.Data.Items[itemdrop.Category]:FindFirstChild(drop)
+	if givenitem then
+		givenitem.Value += 1
+	else
+		local NewValue = Instance.new("IntValue")
+		NewValue.Name = drop
+		NewValue.Value = 1
+		NewValue.Parent = plr.Data.Items[itemdrop.Category]
+	end
+
+end)
